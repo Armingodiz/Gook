@@ -3,7 +3,6 @@ package oauth
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ArminGodiz/Gook/utils/rest_errors"
 	"github.com/go-resty/resty/v2"
 	"net/http"
 	"strconv"
@@ -57,7 +56,7 @@ func GetClientId(request *http.Request) int64 {
 	return clientId
 }
 
-func AuthenticateRequest(request *http.Request) *rest_errors.RestErr {
+func AuthenticateRequest(request *http.Request) *RestErr {
 	if request == nil {
 		return nil
 	}
@@ -89,31 +88,31 @@ func cleanRequest(request *http.Request) {
 	request.Header.Del(headerXCallerId)
 }
 
-func getAccessToken(accessTokenId string) (*accessToken, *rest_errors.RestErr) {
+func getAccessToken(accessTokenId string) (*accessToken, *RestErr) {
 	response, err := oauthRestClient.R().
 		EnableTrace().
 		Get(fmt.Sprintf("http://localhost:2222/oauth/access_token/%s", accessTokenId))
 	if err != nil {
-		return nil, rest_errors.NewInternalServerError("error while sending get request : " + err.Error())
+		return nil, NewInternalServerError("error while sending get request : " + err.Error())
 	}
 	if response == nil || response.RawResponse == nil {
-		return nil, rest_errors.NewInternalServerError("invalid restclient response when trying to get access token" +
+		return nil, NewInternalServerError("invalid restclient response when trying to get access token" +
 			"network timeout")
 	}
 
 	if response.StatusCode() > 299 {
-		var restErr rest_errors.RestErr
+		var restErr RestErr
 		err := json.Unmarshal(response.Body(), &restErr)
 		fmt.Println(response.String())
 		if err != nil { // we get a different type of error
-			return nil, rest_errors.NewInternalServerError("Unknown error type accrued while trying to login ==>" + err.Error())
+			return nil, NewInternalServerError("Unknown error type accrued while trying to login ==>" + err.Error())
 		}
 		return nil, &restErr
 	}
 
 	var at accessToken
 	if err := json.Unmarshal(response.Body(), &at); err != nil {
-		return nil, rest_errors.NewInternalServerError("error when trying to unmarshal access token response  : " + "error processing json")
+		return nil, NewInternalServerError("error when trying to unmarshal access token response  : " + "error processing json")
 	}
 	return &at, nil
 }

@@ -1,4 +1,4 @@
-package rest_errors
+package oauth
 
 import "net/http"
 
