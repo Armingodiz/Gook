@@ -92,7 +92,7 @@ func cleanRequest(request *http.Request) {
 func getAccessToken(accessTokenId string) (*accessToken, *rest_errors.RestErr) {
 	response, err := oauthRestClient.R().
 		EnableTrace().
-		Get(fmt.Sprintf("/oauth/access_token/%s", accessTokenId))
+		Get(fmt.Sprintf("http://localhost:2222/oauth/access_token/%s", accessTokenId))
 	if err != nil {
 		return nil, rest_errors.NewInternalServerError("error while sending get request : " + err.Error())
 	}
