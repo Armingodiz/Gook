@@ -2,14 +2,12 @@ package oauth
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/ArminGodiz/Gook/utils/errors"
+	"github.com/ArminGodiz/Gook/utils/rest_errors"
 	"github.com/go-resty/resty/v2"
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 )
 
 const (
@@ -21,10 +19,7 @@ const (
 )
 
 var (
-	oauthRestClient = rest.RequestBuilder{
-		BaseURL: "http://localhost:8080",
-		Timeout: 200 * time.Millisecond,
-	}
+	oauthRestClient = resty.New()
 )
 
 type accessToken struct {
@@ -62,7 +57,7 @@ func GetClientId(request *http.Request) int64 {
 	return clientId
 }
 
-func AuthenticateRequest(request *http.Request) rest_errors.RestErr {
+func AuthenticateRequest(request *http.Request) *rest_errors.RestErr {
 	if request == nil {
 		return nil
 	}
@@ -76,7 +71,7 @@ func AuthenticateRequest(request *http.Request) rest_errors.RestErr {
 
 	at, err := getAccessToken(accessTokenId)
 	if err != nil {
-		if err.Status() == http.StatusNotFound {
+		if err.Code == http.StatusNotFound {
 			return nil
 		}
 		return err
@@ -94,25 +89,31 @@ func cleanRequest(request *http.Request) {
 	request.Header.Del(headerXCallerId)
 }
 
-func getAccessToken(accessTokenId string) (*accessToken, rest_errors.RestErr) {
-	response := oauthRestClient.Get(fmt.Sprintf("/oauth/access_token/%s", accessTokenId))
-	if response == nil || response.Response == nil {
-		return nil, rest_errors.NewInternalServerError("invalid restclient response when trying to get access token",
-			errors.New("network timeout"))
+func getAccessToken(accessTokenId string) (*accessToken, *rest_errors.RestErr) {
+	response, err := oauthRestClient.R().
+		EnableTrace().
+		Get(fmt.Sprintf("/oauth/access_token/%s", accessTokenId))
+	if err != nil {
+		return nil, rest_errors.NewInternalServerError("error while sending get request : " + err.Error())
+	}
+	if response == nil || response.RawResponse == nil {
+		return nil, rest_errors.NewInternalServerError("invalid restclient response when trying to get access token" +
+			"network timeout")
 	}
 
-	if response.StatusCode > 299 {
-		restErr, err := rest_errors.NewRestErrorFromBytes(response.Bytes())
-		if err != nil {
-			return nil, rest_errors.NewInternalServerError("invalid error interface when trying to get access token", err)
+	if response.StatusCode() > 299 {
+		var restErr rest_errors.RestErr
+		err := json.Unmarshal(response.Body(), &restErr)
+		fmt.Println(response.String())
+		if err != nil { // we get a different type of error
+			return nil, rest_errors.NewInternalServerError("Unknown error type accrued while trying to login ==>" + err.Error())
 		}
-		return nil, restErr
+		return nil, &restErr
 	}
 
 	var at accessToken
-	if err := json.Unmarshal(response.Bytes(), &at); err != nil {
-		return nil, rest_errors.NewInternalServerError("error when trying to unmarshal access token response",
-			errors.New("error processing json"))
+	if err := json.Unmarshal(response.Body(), &at); err != nil {
+		return nil, rest_errors.NewInternalServerError("error when trying to unmarshal access token response  : " + "error processing json")
 	}
 	return &at, nil
 }
