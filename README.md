@@ -2,14 +2,11 @@
 
 Rest microservice for saving items informations and signup&Login user .
 
-# Overal view 
-
-
 ## Services  
 
-* [Users-API](https://github.com/Armingodiz/URL-Shortener#url-shortener)
-* [Oauth-API](https://github.com/Armingodiz/Chat-sever)
-* [Items-API](https://github.com/Armingodiz/GoWorld/tree/master/Projects/Telegram-Bot)
+* [Users-API](https://github.com/Armingodiz/Gook-Users-API)
+* [Oauth-API](https://github.com/Armingodiz/Gook-oauth-API)
+* [Items-API](https://github.com/Armingodiz/Gook-Items-API)
 
 
 ## Used Databases 
@@ -63,3 +60,8 @@ Go to each service repository and install and run it .
  	 * POST ==> 127.0.0.1:3333/items  (Create item)
   	 * GET ==> 127.0.0.1:3333/items/{id} (Get item by id)
   	 * POST ==> 127.0.0.1:3333/items/search (Search for users)
+
+# Overal view 
+
+![view](view.png)
+
