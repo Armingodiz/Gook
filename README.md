@@ -53,13 +53,13 @@ Go to each service repository and install and run it .
 	* GET == > localhost:1111/internal/users/search (Search for users)
 	* POST ==> localhost:1111/users/login (oauth API use this endpoint for Login)
   
-  ## Oauth API EndPoints 
+## Oauth API EndPoints 
   
-  * GET ==> localhost:2222/oauth/access_token/:access_token_id (Get Access token by id)
-  * POST ==> localhost:2222/oauth/access_token (Create Access token)
+  	* GET ==> localhost:2222/oauth/access_token/:access_token_id (Get Access token by id)
+  	* POST ==> localhost:2222/oauth/access_token (Create Access token)
   
-  ## Oauth API EndPoints 
+## Oauth API EndPoints 
     
-  * POST ==> 127.0.0.1:3333/items  (Create item)
-  * GET ==> 127.0.0.1:3333/items/{id} (Get item by id)
-  * POST ==> 127.0.0.1:3333/items/search (Search for users)
+ 	 * POST ==> 127.0.0.1:3333/items  (Create item)
+  	 * GET ==> 127.0.0.1:3333/items/{id} (Get item by id)
+  	 * POST ==> 127.0.0.1:3333/items/search (Search for users)
